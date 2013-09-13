@@ -41,6 +41,7 @@
 
 #### `ansel("scale"[, newScale])`
  - If no parameters are provided, returns the current scale of the Ansel editor.
+ - Scale values are all floats multiplied against the original image size. (.5 for example being 50% scale from original)
  - If newScale is provided, and zoom is supported, zooms the editor to that level and returns that value.
 
 #### `ansel("minscale"[, newScale])`
