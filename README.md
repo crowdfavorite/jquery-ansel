@@ -6,8 +6,6 @@
 
 - jQuery 1.8 or newer
 - jQuery UI 1.10.3 or newer
-- KineticJS 4.5.4 or newer
-- jQuery UI TouchPunch (for touch-device drag/zoom support)
 
 ## USAGE
 
