@@ -1,0 +1,90 @@
+<html>
+<head>
+    <title>jQuery Ansel Demo</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/js/jquery-ui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>jQuery Ansel Demo</h1>
+        <p>In this simple demo, you may select an image from your local system, zoom and crop it to a 250x250 square area, then submit it.</p>
+        <p>Upon submission, the form will generate the same cropping and zoom as you selected and output a copy of that new image at 500x500 instead.</p>
+        <p>All of this work is performed on your local machine, and will not be seen on our servers nor generate any network traffic.</p>
+        <form action="" method="post" enctype="multipart/form-data" id="upload-form">
+            <div class="form-group" style="overflow:hidden;">
+            	<input type="file" id="fil_upload_image" name="full_image" class="local-upload" style="margin:5px;" />
+            	<div class="preview-wrapper" style="margin:5px;">
+                	<div id="uploader-preview" style="border:thin solid black;float:left;"></div>
+                	<div id="slider" style="height:245px; margin:20px; float:left;"></div>
+            	</div>
+        	</div>
+        	<div class="form-group">
+        	    <input type="submit" class="btn btn-default" value="Submit" />
+        	</div>
+        </form>
+        <div class="submission-wrapper" style="width:500px;height:500px;background-color:#CCC;border: thin solid #000;">
+            <div style="text-align:center;position:relative;top:50%;margin-top:-0.5em;">Submitted Image Preview</div>
+        </div>
+        <p>After the image has been generated, instead of displaying it, it is possible to capture this output in a series of form elements that you can then use for server-side processing.</p>
+        <p>Only the portion of the image selected by the user will be provided, all photo information and data outside the bounds of the selected box will not be included.</p>
+        <p>This ensures that only the portion of the photo you want from the user, and that the user wishes to provide to you, will ever be sent over network traffic, improving security and decreasing bandwidth use.</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script type="text/javascript" src="assets/js/jquery-ui/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="assets/js/jquery-ui/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery-ansel/jquery.ansel.min.js"></script>
+    <script type="text/javascript">
+    (function($) {
+        "use strict";
+        
+        var $slider = $("#slider").slider({
+    		"orientation": "vertical",
+    		"step": 0.00005,
+    		"min": 1,
+    		"max": 1
+    	}).on("slide", function() {
+    		$("#fil_upload_image").ansel("scale", $(this).slider("option", "value"));
+    	}).draggable();
+	
+    	$("#fil_upload_image").ansel({
+    		"container": $("#uploader-preview"), 
+    		"size": [250, 250],
+    		"scale-output": 2, 
+    		"zoom": true, 
+    		"draggable": true 
+    	}).on("ansel-image-loaded", function() {
+    		var minZoom, maxZoom;
+
+    		minZoom = $(this).ansel("minscale");
+    		maxZoom = $(this).ansel("maxscale");
+		
+    		$slider.slider("option", {"min": minZoom, "max": maxZoom, "value": minZoom });
+    	}).on("ansel-scale-set", function(e, scale) {
+    		$slider.slider("value", scale);
+    	});
+	
+    	$slider.css({"height": ($("#uploader-preview").height() - 30) + "px"});
+	
+    	// Code to handle data response and form update.
+    	$("#upload-form").on("submit", function(e) {
+    		var $form = $(this);
+    		
+    		e.preventDefault();
+    		e.stopPropagation();
+    		
+    		$("#fil_upload_image").ansel("export", 2, addImageData);
+		
+			function addImageData(exportData) {
+			    var $submissionWrapper = $(".submission-wrapper");
+			    
+			    console.log(exportData);
+			    
+			    $submissionWrapper.empty().append($("<img />").attr("src", exportData.image));
+			}
+    	});
+    })(jQuery);
+    </script>
+</body>
+</html>
